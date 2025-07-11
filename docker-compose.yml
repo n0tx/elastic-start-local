@@ -80,6 +80,25 @@ services:
       timeout: 10s
       retries: 30
 
+  logstash:
+    image: docker.elastic.co/logstash/logstash:${ES_LOCAL_VERSION}
+    container_name: ${LOGSTASH_LOCAL_CONTAINER_NAME:-logstash}
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./config/logstash/pipeline:/usr/share/logstash/pipeline:ro
+    ports:
+      - "5044:5044"
+    environment:
+      - LS_JAVA_OPTS=-Xms256m -Xmx256m
+    healthcheck:
+      test: ["CMD-SHELL","curl --fail localhost:9600 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
 volumes:
   dev-elasticsearch:
   dev-kibana:
+  dev-logstash:
