@@ -1,20 +1,22 @@
 # ELK REST API Logger
 
+  
 <img width="1436" height="848" alt="image" src="https://github.com/user-attachments/assets/42b31f8b-cb1b-4410-bfbf-b7359e6dfa93" />
 
 #
 
-Project ini memberikan setup lengkap **Elasticsearch + Logstash + Kibana + Filebeat** untuk mengumpulkan, mem‑parse, dan mem‑visualisasikan **REST API logs** (dummy) melalui skrip `restapi-log.sh`.
+Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebeat** untuk mengumpulkan, mem‑parse, dan mem‑visualisasikan **REST API logs** (dummy) melalui skrip `restapi-log.sh`.
 
+  
 ## Fitur
 
 - 🚀 **ELK Stack**: Elasticsearch, Logstash, Kibana dijalankan lewat Docker Compose  
-- 📥 **Filebeat**: “tail” file log aplikasi dan kirim ke Logstash  
+- 📥 **Filebeat**: "tail" file log aplikasi dan kirim ke Logstash  
 - 🛠️ **Logstash**: `grok` parsing custom, konversi timestamp, dan routing ke Elasticsearch  
 - 📝 **Dummy log generator**: `restapi-log.sh` membuat 30 baris log CRUD REST API dengan format lengkap (IP, user, timestamp, method, endpoint, status, size, latency, referrer, user-agent)  
 - 📊 **Kibana**: dashboard dan visualisasi (request rate, status distribution, latency, top endpoints, success vs error)
 
-## Cara project ini dibuat
+## Bagaimana project ini dibuat
 
 1. **Install Elasticsearch & Kibana**  
    ```bash
@@ -23,8 +25,8 @@ Project ini memberikan setup lengkap **Elasticsearch + Logstash + Kibana + Fileb
 
 2. **Tambahkan Logstash & Filebeat**
 
-- Di `docker-compose.yml`, tambahkan dua service:
-
+- Di `docker-compose.yml`, tambahkan dua service:  
+  
    ```yaml
    services:
      logstash:
@@ -61,10 +63,10 @@ Project ini memberikan setup lengkap **Elasticsearch + Logstash + Kibana + Fileb
        depends_on:
          - logstash
    ```
-
-- Buat pipeline Logstash di `config/logstash/pipeline/logstash.conf`
-
-  ```conf
+  
+- Buat pipeline Logstash di `config/logstash/pipeline/logstash.conf`  
+  
+  ```bash
    input {
      beats {
       port => 5044
@@ -106,7 +108,7 @@ Project ini memberikan setup lengkap **Elasticsearch + Logstash + Kibana + Fileb
    }
   ```
 
-- Konfigurasi Filebeat di `config/filebeat/filebeat.yml` untuk “tail” `logs/*.log` dan kirim ke Logstash
+- Konfigurasi Filebeat di `config/filebeat/filebeat.yml` untuk “tail” `logs/*.log` dan kirim ke Logstash  
 
   ```yaml
    filebeat.inputs:
@@ -122,5 +124,43 @@ Project ini memberikan setup lengkap **Elasticsearch + Logstash + Kibana + Fileb
      host: "kibana:5601"
      username: "elastic"
      password: "${ES_LOCAL_PASSWORD}"
+
+3. **Buat dummy REST API log**
+     
+   Skrip `restapi-log.sh` menghasilkan baris‑baris log di `logs/access.log`  
   
+   ```bash
+   #!/usr/bin/env bash
+   cd "$(dirname "$0")"
+   
+   declare -a methods=(GET POST PUT DELETE)
+   declare -a endpoints=("/api/items" "/api/items/1" "/api/items/2" "/api/users" "/api/users/42")
+   declare -a users=("guest" "user123" "admin" "alice" "bob")
+   declare -a statuses=(200 201 204 400 401 403 404 500)
+   declare -a referrers=("-" "https://app.example.com/dashboard" "https://app.example.com/login")
+   declare -a user_agents=(
+     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.5790.170 Safari/537.36"
+     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15"
+     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Firefox/102.0"
+   )
+   
+   base_ts="2025-07-15T04:00:00+07:00"
+   
+   for i in {1..30}; do
+     m=${methods[$((RANDOM % ${#methods[@]}))]}
+     e=${endpoints[$((RANDOM % ${#endpoints[@]}))]}
+     u=${users[$((RANDOM % ${#users[@]}))]}
+     s=${statuses[$((RANDOM % ${#statuses[@]}))]}
+     size=$((RANDOM % 500 + 20))
+     latency=$((RANDOM % 200 + 10))
+     ref=${referrers[$((RANDOM % ${#referrers[@]}))]}
+     ua=${user_agents[$((RANDOM % ${#user_agents[@]}))]}
+     ip="192.168.$((RANDOM % 255)).$((RANDOM % 255))"
+   
+     echo "${ip} - ${u} [${base_ts}] \"${m} ${e} HTTP/1.1\" ${s} ${size} ${latency}ms \"${ref}\" \"${ua}\"" \
+       >> logs/access.log
+   done
+   
+   echo "30 baris CRUD log REST API ditambahkan ke logs/access.log"
+   ```
 
