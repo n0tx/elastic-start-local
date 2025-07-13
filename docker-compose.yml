@@ -98,7 +98,22 @@ services:
       timeout: 10s
       retries: 5
 
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${ES_LOCAL_VERSION}
+    container_name: ${FILEBEAT_LOCAL_CONTAINER_NAME:-filebeat-local}
+    user: root
+    command:
+      - filebeat
+      - -e
+      - --strict.perms=false
+      - -c
+      - /usr/share/filebeat/filebeat.yml
+    volumes:
+      - ./config/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - ./logs:/usr/share/filebeat/logs:ro
+    depends_on:
+      - logstash
+
 volumes:
   dev-elasticsearch:
   dev-kibana:
-  dev-logstash:
