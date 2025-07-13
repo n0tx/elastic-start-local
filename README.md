@@ -1,5 +1,7 @@
-# ELK REST API Logger
+# ELK Filebeat REST API Logger
 
+
+## Kibana Dashboard  
   
 <img width="1436" height="848" alt="image" src="https://github.com/user-attachments/assets/42b31f8b-cb1b-4410-bfbf-b7359e6dfa93" />
 
@@ -10,21 +12,21 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
   
 ## Fitur
 
-- 🚀 **ELK Stack**: Elasticsearch, Logstash, Kibana dijalankan lewat Docker Compose  
+- 🚀 **ELK Stack**: Elasticsearch, Logstash, Kibana dan Filebeat dijalankan lewat Docker Compose  
 - 📥 **Filebeat**: "tail" file log aplikasi dan kirim ke Logstash  
 - 🛠️ **Logstash**: `grok` parsing custom, konversi timestamp, dan routing ke Elasticsearch  
 - 📝 **Dummy log generator**: `restapi-log.sh` membuat 30 baris log CRUD REST API dengan format lengkap (IP, user, timestamp, method, endpoint, status, size, latency, referrer, user-agent)  
 - 📊 **Kibana**: dashboard dan visualisasi (request rate, status distribution, latency, top endpoints, success vs error)
 
-## Bagaimana project ini dibuat
-
+## Bagaimana project ini dibuat  
+  
 1. **Install Elasticsearch & Kibana**  
    ```bash
    curl -fsSL https://elastic.co/start-local | sh
    ```
-
-2. **Tambahkan Logstash & Filebeat**
-
+  
+2. **Menambahkan Docker Image Logstash & Filebeat**  
+  
 - Di `docker-compose.yml`, tambahkan dua service:  
   
    ```yaml
@@ -62,7 +64,9 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
          - ./logs:/usr/share/filebeat/logs:ro
        depends_on:
          - logstash
-   ```
+   ```  
+
+3. **Membuat Konfigurasi Logstash & Filebeat**    
   
 - Buat pipeline Logstash di `config/logstash/pipeline/logstash.conf`  
   
@@ -125,7 +129,7 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
      username: "elastic"
      password: "${ES_LOCAL_PASSWORD}"
 
-3. **Buat dummy REST API log**
+4. **Membuat generator dummy REST API log**
      
    Skrip `restapi-log.sh` menghasilkan baris‑baris log di `logs/access.log`  
   
@@ -164,3 +168,100 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
    echo "30 baris CRUD log REST API ditambahkan ke logs/access.log"
    ```
 
+## Referensi
+  
+[Local development installation (quickstart)](https://www.elastic.co/guide/en/elasticsearch/reference/current/quickstart.html)  
+  
+[Logstash Input Beats](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-beats.html)  
+  
+[Logstash Filter Grok](https://www.elastic.co/guide/en/logstash/current/plugins-filters-grok.html)  
+  
+[Logstash Output Elasticsearch](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-elasticsearch.html)  
+  
+[ChatGPT](https://chatgpt.com)  
+  
+## Requirement
+- Docker  
+- Docker Compose
+  
+## Bagaimana Menjalankan Project  
+
+### Menjalankan ELK + Filebeat  
+  
+1. **Clone repository**
+
+```bash
+git clone git clone https://github.com/n0tx/elastic-star-local.git
+```
+  
+2. **Masuk direktori project**
+
+```bash
+cd elastic-star-local
+```
+  
+3. **Start semua service**
+
+```bash
+./start.sh
+```
+
+4. **Tunggu semua service up**
+
+```bash
+docker ps --format "{{.Names}}: {{.Image}} -> {{.Status}}"
+```  
+  
+4. **Generate dummy REST API logs**
+
+```bash
+sudo su
+./restapi-log.sh
+```
+  
+### Monitoring ELK + Filebeat  
+  
+5. **Periksa daftar index di Elasticsearch**
+
+Dari daftar index, index akan ditandai dengan `yellow open   restapi-logs-*`, sesuai nama index pada konfigurasi `logstash.conf`  
+  
+```bash
+curl -u elastic:${ES_LOCAL_PASSWORD} 'http://localhost:9200/_cat/indices?v'
+```  
+  
+6. **Akses Kibana**  
+
+Buka [http://localhost:5601](http://localhost:5601) → Discover / Dashboard untuk melihat data di index `restapi-logs-*`
+```bash
+docker ps --format "{{.Names}}: {{.Image}} -> {{.Status}}"
+```  
+7. **Query lewat curl**  
+
+```bash
+curl -u elastic:${ES_LOCAL_PASSWORD} 'http://localhost:9200/restapi-logs-*/_search?pretty'
+```  
+  
+
+## Struktur Direktori  
+
+```text
+┌──[~/elastic-start-local]
+└─$ tree                                     
+.
+├── config
+│   ├── filebeat
+│   │   └── filebeat.yml
+│   ├── logstash
+│   │   └── pipeline
+│   │       └── logstash.conf
+│   └── telemetry.yml
+├── docker-compose.yml
+├── logs
+│   └── access.log
+├── restapi-logs.sh
+├── start.sh
+├── stop.sh
+└── uninstall.sh
+
+6 directories, 9 files
+```
