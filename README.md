@@ -1,30 +1,35 @@
-# ELK Filebeat REST API Logger
-
-
+# ELK + Filebeat REST API Logger  
+  
+  
 ## Kibana Dashboard  
   
-<img width="1436" height="848" alt="image" src="https://github.com/user-attachments/assets/42b31f8b-cb1b-4410-bfbf-b7359e6dfa93" />
-
-#
-
-Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebeat** untuk mengumpulkan, mem‑parse, dan mem‑visualisasikan **REST API logs** (dummy) melalui skrip `restapi-log.sh`.
-
+<img width="1436" height="848" alt="image" src="https://github.com/user-attachments/assets/42b31f8b-cb1b-4410-bfbf-b7359e6dfa93" />  
   
-## Fitur
-
+#  
+  
+Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebeat** untuk mengumpulkan, mem‑parse, menyimpan dan mem‑visualisasikan **REST API logs** (dummy) melalui skrip `restapi-log.sh`.  
+  
+#  
+  
+<img width="1437" height="855" alt="image" src="https://github.com/user-attachments/assets/c08537a4-632f-4df2-94b0-bf4079ea5dc0" />  
+  
+  
+## Fitur  
+  
 - 🚀 **ELK Stack**: Elasticsearch, Logstash, Kibana dan Filebeat dijalankan lewat Docker Compose  
 - 📥 **Filebeat**: "tail" file log aplikasi dan kirim ke Logstash  
 - 🛠️ **Logstash**: `grok` parsing custom, konversi timestamp, dan routing ke Elasticsearch  
 - 📝 **Dummy log generator**: `restapi-log.sh` membuat 30 baris log CRUD REST API dengan format lengkap (IP, user, timestamp, method, endpoint, status, size, latency, referrer, user-agent)  
-- 📊 **Kibana**: dashboard dan visualisasi (request rate, status distribution, latency, top endpoints, success vs error)
-
+- 📊 **Kibana**: dashboard dan visualisasi (request rate, status distribution, latency, top endpoints, success vs error)  
+  
 ## Bagaimana project ini dibuat  
   
 1. **Install Elasticsearch & Kibana**  
+    
    ```bash
    curl -fsSL https://elastic.co/start-local | sh
-   ```
-  
+   ```  
+     
 2. **Menambahkan Docker Image Logstash & Filebeat**  
   
 - Di `docker-compose.yml`, tambahkan dua service:  
@@ -65,7 +70,7 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
        depends_on:
          - logstash
    ```  
-
+  
 3. **Membuat Konfigurasi Logstash & Filebeat**    
   
 - Buat pipeline Logstash di `config/logstash/pipeline/logstash.conf`  
@@ -111,7 +116,7 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
      stdout { codec => rubydebug }
    }
   ```
-
+  
 - Konfigurasi Filebeat di `config/filebeat/filebeat.yml` untuk “tail” `logs/*.log` dan kirim ke Logstash  
 
   ```yaml
@@ -128,9 +133,9 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
      host: "kibana:5601"
      username: "elastic"
      password: "${ES_LOCAL_PASSWORD}"
-
-4. **Membuat generator dummy REST API log**
-     
+  
+4. **Membuat dummy REST API log**  
+  
    Skrip `restapi-log.sh` menghasilkan baris‑baris log di `logs/access.log`  
   
    ```bash
@@ -167,10 +172,10 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
    
    echo "30 baris CRUD log REST API ditambahkan ke logs/access.log"
    ```
-
-## Referensi
   
-[Local development installation (quickstart)](https://www.elastic.co/guide/en/elasticsearch/reference/current/quickstart.html)  
+## Referensi  
+  
+[Local development installation (quickstart)](https://www.elastic.co/docs/deploy-manage/deploy/self-managed/local-development-installation-quickstart)  
   
 [Logstash Input Beats](https://www.elastic.co/guide/en/logstash/current/plugins-inputs-beats.html)  
   
@@ -182,16 +187,17 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
   
 ## Requirement
 - Docker  
-- Docker Compose
+- Docker Compose  
   
-## Bagaimana Menjalankan Project  
+  
+## Cara Menjalankan Project  
 
 ### Menjalankan ELK + Filebeat  
   
 1. **Clone repository**
 
 ```bash
-git clone git clone https://github.com/n0tx/elastic-star-local.git
+git clone https://github.com/n0tx/elastic-star-local.git
 ```
   
 2. **Masuk direktori project**
@@ -205,14 +211,14 @@ cd elastic-star-local
 ```bash
 ./start.sh
 ```
-
+  
 4. **Tunggu semua service up**
 
 ```bash
 docker ps --format "{{.Names}}: {{.Image}} -> {{.Status}}"
 ```  
   
-4. **Generate dummy REST API logs**
+5. **Generate dummy REST API logs**
 
 ```bash
 sudo su
@@ -221,29 +227,30 @@ sudo su
   
 ### Monitoring ELK + Filebeat  
   
-5. **Periksa daftar index di Elasticsearch**
-
-Dari daftar index, index akan ditandai dengan `yellow open   restapi-logs-*`, sesuai nama index pada konfigurasi `logstash.conf`  
+1. **Periksa daftar index di Elasticsearch**
+  
+Dari daftar index, index akan ditandai dengan `yellow open   restapi-logs-*`,   
+sesuai nama index pada konfigurasi `logstash.conf`  
   
 ```bash
 curl -u elastic:${ES_LOCAL_PASSWORD} 'http://localhost:9200/_cat/indices?v'
-```  
+```    
   
-6. **Akses Kibana**  
-
+2. **Query lewat curl**  
+  
+```bash
+curl -u elastic:${ES_LOCAL_PASSWORD} 'http://localhost:9200/restapi-logs-*/_search?pretty'
+```    
+  
+3. **Akses Kibana**  
+  
 Buka [http://localhost:5601](http://localhost:5601) → Discover / Dashboard untuk melihat data di index `restapi-logs-*`
 ```bash
 docker ps --format "{{.Names}}: {{.Image}} -> {{.Status}}"
 ```  
-7. **Query lewat curl**  
-
-```bash
-curl -u elastic:${ES_LOCAL_PASSWORD} 'http://localhost:9200/restapi-logs-*/_search?pretty'
-```  
   
-
 ## Struktur Direktori  
-
+  
 ```text
 ┌──[~/elastic-start-local]
 └─$ tree                                     
@@ -265,3 +272,50 @@ curl -u elastic:${ES_LOCAL_PASSWORD} 'http://localhost:9200/restapi-logs-*/_sear
 
 6 directories, 9 files
 ```
+  
+## Perintah Penting saat Development ELK + Filebeat  
+    
+Rangkuman perintah penting yang membantu proses development, troubleshooting, dan verifikasi pipeline ELK + Filebeat.  
+    
+### 1. Cek Status Container / Service
+> Memastikan container sudah berjalan dan melihat status
+```bash
+docker ps --format "{{.Names}}: {{.Image}} -> {{.Status}}"  # Daftar container dengan nama, image, dan status
+docker ps                                                   # Daftar container sedang berjalan
+```
+  
+### 2. Melihat Log Service
+> Menampilkan output `stdout/stderr` dari container secara real-time  
+```bash
+docker-compose logs -f elasticsearch   # Log Elasticsearch
+docker-compose logs -f kibana          # Log Kibana
+docker-compose logs -f logstash        # Log Logstash
+docker-compose logs -f filebeat        # Log Filebeat
+```
+  
+### 3. (Re)Build & Start Ulang Semua Service
+> Setelah melakukan perubahan pada file konfigurasi (Logstash, Filebeat, docker-compose, dsb.), jalankan perintah berikut untuk membangun ulang image, men‑recreate semua container, dan memastikan setiap service memuat konfigurasi terbaru secara menyeluruh
+```bash
+docker-compose up -d --build --force-recreate
+```
+  
+### 4. Restart Service Tertentu
+> Jalankan ulang container tanpa mempengaruhi yang lain
+```bash
+docker-compose restart logstash        # Restart Logstash setelah ubah konfigurasi
+```
+   
+### 5. Masuk ke Shell Container
+> Untuk inspeksi langsung file, konfigurasi, atau menjalankan perintah di dalam container
+```bash
+docker exec -it filebeat-local bash   # Masuk ke shell container filebeat
+```
+    
+### 6. Verifikasi Konfigurasi & Konektivitas Filebeat
+> Test apakah filebeat.yml valid dan koneksi ke Logstash berfungsi
+```bash
+docker exec filebeat-local filebeat test config    # Cek validitas filebeat.yml
+docker exec filebeat-local filebeat test output    # Cek koneksi ke Logstash (5044)
+```
+
+  
