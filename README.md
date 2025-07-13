@@ -244,10 +244,7 @@ curl -u elastic:${ES_LOCAL_PASSWORD} 'http://localhost:9200/restapi-logs-*/_sear
   
 3. **Akses Kibana**  
   
-Buka [http://localhost:5601](http://localhost:5601) → Discover / Dashboard untuk melihat data di index `restapi-logs-*`
-```bash
-docker ps --format "{{.Names}}: {{.Image}} -> {{.Status}}"
-```  
+Buka [http://localhost:5601](http://localhost:5601) → Discover / Dashboard untuk melihat data di index `restapi-logs-*`  
   
 ## Struktur Direktori  
   
