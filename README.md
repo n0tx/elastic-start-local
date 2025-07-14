@@ -3,7 +3,8 @@
   
 ## Kibana Dashboard  
   
-<img width="1436" height="848" alt="image" src="https://github.com/user-attachments/assets/42b31f8b-cb1b-4410-bfbf-b7359e6dfa93" />  
+<img width="1430" height="849" alt="image" src="https://github.com/user-attachments/assets/59dd6f9a-dbfe-41b1-ab12-60d929f97442" />  
+  
   
 #  
   
@@ -11,7 +12,8 @@ Project ini merupakan contoh setup **Elasticsearch + Logstash + Kibana + Filebea
   
 #  
   
-<img width="1437" height="855" alt="image" src="https://github.com/user-attachments/assets/c08537a4-632f-4df2-94b0-bf4079ea5dc0" />  
+<img width="1440" height="854" alt="image" src="https://github.com/user-attachments/assets/2ad3575a-1c0a-4866-b5ac-2439c261d3b7" />  
+  
   
   
 ## Fitur  
